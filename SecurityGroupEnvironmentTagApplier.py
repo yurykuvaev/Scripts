@@ -1,44 +1,72 @@
-import boto3
+"""Apply per-SG `Environment=<env>` tag from a pairs file.
 
-# Initialize a session using AWS SDK
-session = boto3.Session()
+Each line in --input is `<sg-id> <env>` separated by whitespace. The script
+will skip an SG if it already has an `Environment` tag with a different
+value (so a pre-existing prod tag won't be overwritten by 'dev').
+"""
+from __future__ import annotations
 
-# Create EC2 client
-ec2_client = session.client('ec2')
+import sys
+from pathlib import Path
 
-def read_sg_env_pairs(file_name):
-    pairs = {}
-    with open(file_name, 'r') as file:
-        for line in file:
-            parts = line.strip().split()
-            if len(parts) == 2:
-                pairs[parts[0]] = parts[1]
+from _common import LOG, aws_client, common_arg_parser, configure_logging
+
+
+def read_pairs(path: Path) -> dict[str, str]:
+    pairs: dict[str, str] = {}
+    for line in path.read_text().splitlines():
+        parts = line.strip().split()
+        if len(parts) == 2:
+            pairs[parts[0]] = parts[1]
     return pairs
 
-def tag_security_group(sg_id, env):
-    # Retrieve current tags for the security group
-    response = ec2_client.describe_tags(
-        Filters=[{'Name': 'resource-id', 'Values': [sg_id]}]
+
+def apply_env_tag(client, sg_id: str, env: str, dry_run: bool) -> str:
+    """Returns one of: applied / skipped-already / skipped-conflict."""
+    resp = client.describe_tags(Filters=[{"Name": "resource-id", "Values": [sg_id]}])
+    current = {t["Key"]: t["Value"] for t in resp.get("Tags", [])}
+    existing_env = current.get("Environment")
+
+    if existing_env == env:
+        return "skipped-already"
+    if existing_env and existing_env != env:
+        LOG.warning("%s has Environment=%s, refusing to overwrite with %s",
+                    sg_id, existing_env, env)
+        return "skipped-conflict"
+
+    if dry_run:
+        LOG.info("[dry-run] %s would set Environment=%s", sg_id, env)
+        return "applied"
+
+    client.create_tags(Resources=[sg_id], Tags=[{"Key": "Environment", "Value": env}])
+    LOG.info("%s set Environment=%s", sg_id, env)
+    return "applied"
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = common_arg_parser(__doc__.splitlines()[0])
+    parser.add_argument(
+        "-i", "--input",
+        type=Path,
+        default=Path("sg_env_pairs.txt"),
+        help="File with `<sg-id> <env>` pairs, one per line.",
     )
-    current_tags = response.get('Tags', [])
+    args = parser.parse_args(argv)
+    configure_logging(args.verbose)
 
-    # Check if 'Environment' tag exists and its value
-    env_tag = next((tag for tag in current_tags if tag['Key'] == 'Environment'), None)
-    if env_tag and env_tag['Value'] != 'dev' and env_tag['Value'] != env:
-        return  # Skip if a different environment tag exists
+    pairs = read_pairs(args.input)
+    if not pairs:
+        LOG.warning("no pairs found in %s", args.input)
+        return 0
 
-    # Update or add the 'Environment' tag
-    ec2_client.create_tags(
-        Resources=[sg_id],
-        Tags=[{'Key': 'Environment', 'Value': env}]
-    )
+    ec2 = aws_client("ec2", region=args.region)
+    counts = {"applied": 0, "skipped-already": 0, "skipped-conflict": 0}
+    for sg_id, env in pairs.items():
+        counts[apply_env_tag(ec2, sg_id, env, args.dry_run)] += 1
 
-# File containing the SG and environment pairs
-file_name = 'sg_env_pairs.txt'
+    LOG.info("done: %s", counts)
+    return 0 if counts["skipped-conflict"] == 0 else 1
 
-# Read SG ID and environment pairs from the file
-sg_env_pairs = read_sg_env_pairs(file_name)
 
-# Apply tags to the security groups
-for sg_id, env in sg_env_pairs.items():
-    tag_security_group(sg_id, env)
+if __name__ == "__main__":
+    sys.exit(main())
