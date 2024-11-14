@@ -1,47 +1,80 @@
+"""Audit IAM roles for an expected attached policy.
+
+Iterates every IAM role whose name starts with one of --role-prefix, then
+emits the names of those that DO NOT have --policy-arn attached. Output is
+written to --output (default: stdout) so it can pipe into a follow-up
+remediation script.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
 import boto3
 
-# Initialize a boto3 IAM client
-iam_client = boto3.client('iam')
+# IAM is global — region doesn't matter; just include in arg parser for consistency.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from _common import LOG, common_arg_parser, configure_logging  # noqa: E402
 
-# Define the role name patterns
-role_patterns = [
-    'ecs-t1le-*',   
-    'ecs-1le-*',    
-    'ecs-t12le',   #Changed for security reasons
-    'task-e1le-*',  
-    'task-r1e-*'    
-]
 
-# Policy ARN to check for
-policy_arn_to_check = 'arn:aws:iam::123:policy/EcsRoleTaggingPolicy'
+def list_matching_roles(client, prefixes: list[str]):
+    """Yield IAM Role objects whose name starts with any of the given prefixes."""
+    paginator = client.get_paginator("list_roles")
+    for page in paginator.paginate():
+        for role in page["Roles"]:
+            name = role["RoleName"]
+            if any(name.startswith(p) for p in prefixes):
+                yield role
 
-def list_roles():
-    """List all IAM roles."""
-    roles = []
-    paginator = iam_client.get_paginator('list_roles')
-    for response in paginator.paginate():
-        roles.extend(response['Roles'])
-    return roles
 
-def is_policy_attached(role_name, policy_arn):
-    """Check if a specific policy is attached to a role."""
-    attached_policies = iam_client.list_attached_role_policies(RoleName=role_name)['AttachedPolicies']
-    for policy in attached_policies:
-        if policy['PolicyArn'] == policy_arn:
+def has_policy(client, role_name: str, policy_arn: str) -> bool:
+    paginator = client.get_paginator("list_attached_role_policies")
+    for page in paginator.paginate(RoleName=role_name):
+        if any(p["PolicyArn"] == policy_arn for p in page["AttachedPolicies"]):
             return True
     return False
 
-roles_without_policy = []
 
-# Check each role and see if the policy is attached
-for role in list_roles():
-    if any(role['RoleName'].startswith(pattern) for pattern in role_patterns):
-        if not is_policy_attached(role['RoleName'], policy_arn_to_check):
-            roles_without_policy.append(role['RoleName'])
+def main(argv: list[str] | None = None) -> int:
+    parser = common_arg_parser(__doc__.splitlines()[0])
+    parser.add_argument(
+        "--role-prefix",
+        action="append",
+        required=True,
+        help="Role name prefix to audit. Repeat for multiple prefixes.",
+    )
+    parser.add_argument("--policy-arn", required=True,
+                        help="Expected attached policy ARN.")
+    parser.add_argument(
+        "-o", "--output",
+        type=Path,
+        default=None,
+        help="Write missing role names here (default: stdout).",
+    )
+    args = parser.parse_args(argv)
+    configure_logging(args.verbose)
 
-# Write roles without the policy to a file
-with open('1.txt', 'w') as file:
-    for role in roles_without_policy:
-        file.write(role + '\n')
+    iam = boto3.client("iam")
+    missing: list[str] = []
+    checked = 0
+    for role in list_matching_roles(iam, args.role_prefix):
+        checked += 1
+        if not has_policy(iam, role["RoleName"], args.policy_arn):
+            missing.append(role["RoleName"])
 
-print(f"Roles without the policy {policy_arn_to_check} have been listed in 1.txt")
+    LOG.info("checked %d role(s) matching prefixes; %d missing %s",
+             checked, len(missing), args.policy_arn)
+
+    text = "\n".join(missing) + ("\n" if missing else "")
+    if args.output:
+        args.output.write_text(text, encoding="utf-8")
+        LOG.info("wrote %d names to %s", len(missing), args.output)
+    else:
+        sys.stdout.write(text)
+
+    # Non-zero exit if anything is non-compliant — useful in CI.
+    return 0 if not missing else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
