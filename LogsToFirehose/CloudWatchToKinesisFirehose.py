@@ -1,29 +1,59 @@
-import boto3
+"""Add a CloudWatch Logs subscription filter that forwards a single log
+group to a Kinesis Firehose delivery stream.
 
-# Set these variables
-region = 'us-east-1'  # Replace with your AWS region if different
-log_group_name = '/ecs/ddos-123-dev-05'  # Updated log group name
-kinesis_firehose_stream_name = 'kinesis-splunk'  # Updated Kinesis Firehose stream name
-filter_name = 'Destination'  # Filter name (can be customized)
-filter_pattern = ''  # Filter pattern (empty for all logs)
-role_arn = 'arn:aws:iam::123:role/CWLtoKinesisFirehoseRole'  # Replace with your IAM role ARN if different
+Account ID is detected via STS so the destination ARN is built without
+hardcoding it.
+"""
+from __future__ import annotations
 
-# Initialize the STS client to get the account ID
-sts_client = boto3.client('sts', region_name=region)
-account_id = sts_client.get_caller_identity()["Account"]
+import sys
+from pathlib import Path
 
-# Initialize the CloudWatch Logs client
-logs_client = boto3.client('logs', region_name=region)
+# Subdirectory script — pull _common from parent.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from _common import LOG, aws_client, common_arg_parser, configure_logging  # noqa: E402
 
-# Create the subscription filter
-try:
-    logs_client.put_subscription_filter(
-        logGroupName=log_group_name,
-        filterName=filter_name,
-        filterPattern=filter_pattern,
-        destinationArn=f'arn:aws:firehose:{region}:{account_id}:deliverystream/{kinesis_firehose_stream_name}',
-        roleArn=role_arn
+
+def main(argv: list[str] | None = None) -> int:
+    parser = common_arg_parser(__doc__.splitlines()[0])
+    parser.add_argument("--log-group", required=True,
+                        help="Log group name to subscribe.")
+    parser.add_argument("--stream", required=True,
+                        help="Kinesis Firehose delivery stream name.")
+    parser.add_argument("--filter-name", default="Destination",
+                        help="Subscription filter name (default: Destination).")
+    parser.add_argument("--filter-pattern", default="",
+                        help="Filter pattern (default: empty = forward everything).")
+    parser.add_argument("--role-arn", required=True,
+                        help="IAM role ARN that grants CWL → Firehose put permission.")
+    args = parser.parse_args(argv)
+    configure_logging(args.verbose)
+
+    region = args.region
+    sts = aws_client("sts", region=region)
+    account_id = sts.get_caller_identity()["Account"]
+
+    # If region wasn't passed, use whatever the boto3 session resolved.
+    region = region or aws_client("logs").meta.region_name
+    destination_arn = f"arn:aws:firehose:{region}:{account_id}:deliverystream/{args.stream}"
+
+    if args.dry_run:
+        LOG.info("[dry-run] would put subscription filter on %s -> %s",
+                 args.log_group, destination_arn)
+        return 0
+
+    logs = aws_client("logs", region=region)
+    logs.put_subscription_filter(
+        logGroupName=args.log_group,
+        filterName=args.filter_name,
+        filterPattern=args.filter_pattern,
+        destinationArn=destination_arn,
+        roleArn=args.role_arn,
     )
-    print(f'Subscription filter added to {log_group_name}')
-except Exception as e:
-    print(f'Error adding subscription filter: {e}')
+    LOG.info("subscription filter %s attached to %s -> %s",
+             args.filter_name, args.log_group, args.stream)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
