@@ -9,17 +9,17 @@ solves a real chore that came up enough times to deserve a script.
 
 | Script | What it does |
 |---|---|
-| `SecurityGroupIDExporter.py` | Dump every security group ID in the region to a text file |
-| `AddTagsToSecurityGroup.py` | Apply `KEY=VALUE` tags to a list of SG IDs from a file |
-| `SecurityGroupEnvironmentTagApplier.py` | Apply per-SG `Environment` tag from a `<sg> <env>` pairs file |
-| `TaggedSecurityGroupCounter.py` | Count SGs that carry a given set of tag keys (compliance check) |
-| `TagLogGroups.py` | Tag every CloudWatch Log Group; infer `Environment` from the name |
-| `DevEnvironmentTaggerForLogGroups.py` | Tag log groups whose name contains a substring with `Environment=<value>` |
-| `AddRoleToECR.py` | Add a role ARN to a named statement in every ECR repo policy |
-| `IAMRolePolicyAuditor/` | Audit IAM roles by name prefix for an expected attached policy (CI-friendly exit code) |
-| `LogsToFirehose/` | Subscribe a single log group to a Firehose delivery stream |
-| `Redisins-isnance-check/` | Find ECS services pointing at a list of Redis hosts |
-| `Subscription-filters/` | Bulk-attach subscription filters across log groups |
+| `security_group_id_exporter.py` | Dump every security group ID in the region to a text file |
+| `add_tags_to_security_group.py` | Apply `KEY=VALUE` tags to a list of SG IDs from a file |
+| `security_group_environment_tag_applier.py` | Apply per-SG `Environment` tag from a `<sg> <env>` pairs file |
+| `tagged_security_group_counter.py` | Count SGs that carry a given set of tag keys (compliance check) |
+| `tag_log_groups.py` | Tag every CloudWatch Log Group; infer `Environment` from the name |
+| `dev_environment_tagger_for_log_groups.py` | Tag log groups whose name contains a substring with `Environment=<value>` |
+| `add_role_to_ecr.py` | Add a role ARN to a named statement in every ECR repo policy |
+| `iam_role_policy_auditor/` | Audit IAM roles by name prefix for an expected attached policy (CI-friendly exit code) |
+| `logs_to_firehose/` | Subscribe a single log group to a Firehose delivery stream |
+| `redis_instance_check/` | Find ECS services pointing at a list of Redis hosts |
+| `subscription_filters/` | Bulk-attach subscription filters across log groups |
 
 ## Running
 
@@ -28,23 +28,23 @@ the same `--region`, `--dry-run`, `--verbose` flags work everywhere:
 
 ```bash
 # Inventory
-python SecurityGroupIDExporter.py --region us-east-1 -o sg_ids.txt
+python security_group_id_exporter.py --region us-east-1 -o sg_ids.txt
 
 # Tagging — preview first
-python AddTagsToSecurityGroup.py \
+python add_tags_to_security_group.py \
     --region us-east-1 \
     --input sg_ids.txt \
     --tag Product=ingest --tag Service=api --tag SupportGroup=platform \
     --dry-run
 
 # When happy, run for real
-python AddTagsToSecurityGroup.py \
+python add_tags_to_security_group.py \
     --region us-east-1 \
     --input sg_ids.txt \
     --tag Product=ingest --tag Service=api --tag SupportGroup=platform
 
 # Compliance check — exits non-zero if any role is missing the policy
-python IAMRolePolicyAuditor/ECSRolePolicyComplianceCheck.py \
+python iam_role_policy_auditor/ecs_role_policy_compliance_check.py \
     --role-prefix ecs-task- \
     --policy-arn arn:aws:iam::123456789012:policy/EcsRoleTaggingPolicy
 ```
