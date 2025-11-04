@@ -14,7 +14,6 @@ solves a real chore that came up enough times to deserve a script.
 | `security_group_environment_tag_applier.py` | Apply per-SG `Environment` tag from a `<sg> <env>` pairs file |
 | `tagged_security_group_counter.py` | Count SGs that carry a given set of tag keys (compliance check) |
 | `tag_log_groups.py` | Tag every CloudWatch Log Group; infer `Environment` from the name |
-| `dev_environment_tagger_for_log_groups.py` | Tag log groups whose name contains a substring with `Environment=<value>` |
 | `add_role_to_ecr.py` | Add a role ARN to a named statement in every ECR repo policy |
 | `iam_role_policy_auditor/` | Audit IAM roles by name prefix for an expected attached policy (CI-friendly exit code) |
 | `logs_to_firehose/` | Subscribe a single log group to a Firehose delivery stream |
