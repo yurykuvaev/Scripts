@@ -7,18 +7,35 @@ solves a real chore that came up enough times to deserve a script.
 
 ## Quick index
 
+### Tagging & inventory
 | Script | What it does |
 |---|---|
-| `security_group_id_exporter.py` | Dump every security group ID in the region to a text file |
-| `add_tags_to_security_group.py` | Apply `KEY=VALUE` tags to a list of SG IDs from a file |
+| `security_group_id_exporter.py` | Dump SG IDs (with `--vpc-id` and `--missing-tag` filters) |
+| `add_tags_to_security_group.py` | Apply `KEY=VALUE` tags from a file or to every SG in the region |
 | `security_group_environment_tag_applier.py` | Apply per-SG `Environment` tag from a `<sg> <env>` pairs file |
 | `tagged_security_group_counter.py` | Count SGs that carry a given set of tag keys (compliance check) |
-| `tag_log_groups.py` | Tag every CloudWatch Log Group; infer `Environment` from the name |
+| `tag_log_groups.py` | Tag CloudWatch Log Groups, inferring `Environment` from the name |
+
+### Cost / cleanup
+| Script | What it does |
+|---|---|
+| `unused_security_groups.py` | Find SGs nothing references; optional `--delete` with topo-sorted order |
+| `ami_cleanup.py` | Deregister unused AMIs and reclaim EBS snapshots, with per-prefix retention |
+| `ecr_image_aging.py` | Pull-aware ECR cleanup with `--keep-tag-pattern` and `--keep-last-n` safety nets |
+
+### IAM / compliance
+| Script | What it does |
+|---|---|
+| `iam_policy_minimizer.py` | Generate a least-privilege policy for a role from CloudTrail history |
+| `iam_role_policy_auditor/` | Audit IAM roles by name prefix for an expected policy (CI-friendly exit code) |
 | `add_role_to_ecr.py` | Add a role ARN to a named statement in every ECR repo policy |
-| `iam_role_policy_auditor/` | Audit IAM roles by name prefix for an expected attached policy (CI-friendly exit code) |
+
+### Observability
+| Script | What it does |
+|---|---|
 | `logs_to_firehose/` | Subscribe a single log group to a Firehose delivery stream |
-| `redis_instance_check/` | Find ECS services pointing at a list of Redis hosts |
 | `subscription_filters/` | Bulk-attach subscription filters across log groups |
+| `redis_instance_check/` | Find ECS services pointing at a list of Redis hosts |
 
 ## Running
 
