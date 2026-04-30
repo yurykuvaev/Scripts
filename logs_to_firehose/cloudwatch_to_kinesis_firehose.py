@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Subdirectory script — pull _common from parent.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from _common import LOG, aws_client, common_arg_parser, configure_logging  # noqa: E402
+from _common import LOG, aws_client, common_arg_parser, configure_logging
 
 
 def main(argv: list[str] | None = None) -> int:

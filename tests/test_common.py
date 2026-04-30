@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from _common import common_arg_parser, parse_kv_pairs  # noqa: E402
+from _common import common_arg_parser, parse_kv_pairs
 
 
 class TestParseKvPairs:

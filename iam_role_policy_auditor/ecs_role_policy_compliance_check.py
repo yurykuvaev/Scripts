@@ -14,7 +14,7 @@ import boto3
 
 # IAM is global — region doesn't matter; just include in arg parser for consistency.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from _common import LOG, common_arg_parser, configure_logging  # noqa: E402
+from _common import LOG, common_arg_parser, configure_logging
 
 
 def list_matching_roles(client, prefixes: list[str]):
