@@ -195,7 +195,7 @@ def main(argv: list[str] | None = None) -> int:
             LOG.info("deregistered %s (created %s ago)",
                      ami_id, now - parse_creation(ami))
             deleted += 1
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             LOG.error("FAILED deregister %s: %s", ami_id, e)
             failed += 1
             continue
@@ -205,7 +205,7 @@ def main(argv: list[str] | None = None) -> int:
                 ec2.delete_snapshot(SnapshotId=snap_id)
                 LOG.info("  deleted snap %s", snap_id)
                 snap_deleted += 1
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 LOG.error("  FAILED snap %s: %s", snap_id, e)
                 failed += 1
 

@@ -163,7 +163,7 @@ def main(argv: list[str] | None = None) -> int:
             ec2.delete_security_group(GroupId=gid)
             LOG.info("deleted %s", gid)
             deleted += 1
-        except Exception as e:  # noqa: BLE001 — surface AWS errors verbatim
+        except Exception as e:
             failed.append((gid, str(e)))
             LOG.error("FAILED %s: %s", gid, e)
 
