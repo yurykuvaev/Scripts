@@ -112,6 +112,11 @@ CI runs the same on every push. See [.github/workflows/ci.yml](.github/workflows
 
 Python 3.10+.
 
+## Related
+
+- [terrascale-platform](https://github.com/yurykuvaev/terrascale-platform) — full EKS/Terragrunt portfolio platform that uses these IAM/SG patterns
+- [eks-platform-engineering](https://github.com/yurykuvaev/eks-platform-engineering) — companion EKS portfolio with project-by-project walkthroughs
+
 ## License
 
 MIT - see [LICENSE](LICENSE).
