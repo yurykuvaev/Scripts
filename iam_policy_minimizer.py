@@ -28,7 +28,6 @@ from typing import Any
 
 from _common import LOG, aws_client, common_arg_parser, configure_logging
 
-
 CT_MAX_DAYS = 90  # CloudTrail event history window in days.
 
 
