@@ -20,8 +20,6 @@ Workflow:
      (e.g. monthly billing job). Bump --days or merge with known seasonal lists.
   3. Apply with `aws iam put-role-policy` or as an attached managed policy.
 """
-from __future__ import annotations
-
 import json
 import sys
 from collections import defaultdict
@@ -140,7 +138,7 @@ def _actions(stmt: dict) -> set[str]:
     return {a for a in actions if isinstance(a, str)}
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv = None) -> int:
     parser = common_arg_parser(__doc__.splitlines()[0])
     parser.add_argument("--role", required=True, help="IAM role name.")
     parser.add_argument(
