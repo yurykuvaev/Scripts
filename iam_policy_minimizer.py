@@ -29,6 +29,8 @@ def collect_role_events(client_ct, role_name: str, days: int) -> list[dict[str, 
         LOG.warning("CloudTrail history is capped at %d days; using %d", CT_MAX_DAYS, CT_MAX_DAYS)
         days = CT_MAX_DAYS
 
+    # TODO: switch to CloudTrail Lake / Athena once we have it in this account,
+    # LookupEvents is painfully slow on busy roles
     end_time = datetime.now(timezone.utc)
     start_time = end_time - timedelta(days=days)
 
