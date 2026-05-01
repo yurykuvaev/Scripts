@@ -1,18 +1,8 @@
-"""Find -- and optionally deregister -- unused AMIs and their EBS snapshots.
+"""Deregister unused AMIs and reclaim their EBS snapshots.
 
-The most common cost-leak in EC2 is forgotten AMIs. EBS snapshots backing
-them keep billing every month after the AMI itself stops being used. This
-script finds AMIs owned by the account that:
-  1. are NOT the image of any running instance, AND
-  2. are NOT referenced by any Launch Template version, AND
-  3. are NOT the AMI of any Auto Scaling Group's launch config / template.
-
-Then optionally retains the last N images per name prefix
-(`--keep-last-N`), so you don't accidentally delete every "myapp-*" AMI
-the day after a release.
-
-Deletion is two steps: deregister the AMI, then delete each EBS snapshot
-backing its block device mappings. Both honour --dry-run.
+An AMI is "unused" if no running instance, Launch Template version, or
+Auto Scaling Group references it. `--keep-last-n` retains the N newest
+per name prefix so a release doesn't immediately wipe your fallback.
 """
 from __future__ import annotations
 

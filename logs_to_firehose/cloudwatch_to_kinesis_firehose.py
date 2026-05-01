@@ -9,7 +9,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Subdirectory script — pull _common from parent.
+# Subdirectory script - pull _common from parent.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from _common import LOG, aws_client, common_arg_parser, configure_logging
 

@@ -5,7 +5,7 @@ Audit IAM roles by name prefix for an expected attached policy.
 `ecs_role_policy_compliance_check.py` walks every IAM role whose name
 starts with one of the given `--role-prefix` values and checks that
 `--policy-arn` is attached. Roles that miss the policy are written to
-`--output` (or stdout). Exits non-zero if anything is non-compliant —
+`--output` (or stdout). Exits non-zero if anything is non-compliant -
 drop it into CI and the build fails when a new role drifts.
 
 ## Usage
@@ -28,5 +28,5 @@ IAM is global, so `--region` is accepted but ignored.
 
 ## Exit codes
 
-- `0` — every matched role has the policy
-- `1` — at least one role is missing it (also the case in --dry-run)
+- `0` - every matched role has the policy
+- `1` - at least one role is missing it (also the case in --dry-run)

@@ -1,7 +1,7 @@
 """Dump security group IDs to a text file with optional filters.
 
 By default lists every SG in the region. With `--vpc-id` narrows to one VPC.
-With `--missing-tag KEY` keeps only SGs that DO NOT have the named tag —
+With `--missing-tag KEY` keeps only SGs that DO NOT have the named tag -
 useful as the input file for a tag-cleanup pipeline.
 """
 from __future__ import annotations

@@ -1,24 +1,11 @@
-"""Generate a minimal IAM policy for a role from CloudTrail history.
+"""Suggest a minimal IAM policy from CloudTrail history.
 
-CloudTrail records every API call made under a role. By aggregating events
-from the lookback window, we can see which `<service>:<Action>` pairs the
-role actually used and propose a tight policy that grants only those.
-Compare it to the role's current attached policies to spot over-permissive
-grants.
+Walks LookupEvents for the role and emits a policy JSON for actions
+actually seen. With --diff also prints allowed-but-unused actions and any
+wildcards in the current attached policies.
 
-Caveats baked in:
-  * `cloudtrail:LookupEvents` is paginated and rate-limited; lookback is
-    capped at 90 days (CloudTrail console history limit).
-  * Read-only KMS / STS noise is filtered down to the actions the role
-    actually performed (we don't manufacture allow lines for events we
-    didn't see).
-  * Output is a JSON policy ready for `aws iam create-policy`.
-
-Workflow:
-  1. Run for a role: emits suggested policy + a diff against current attached.
-  2. Review — CloudTrail-driven policies miss seasonal actions
-     (e.g. monthly billing job). Bump --days or merge with known seasonal lists.
-  3. Apply with `aws iam put-role-policy` or as an attached managed policy.
+CloudTrail history caps at 90 days. Seasonal jobs you don't see won't be
+in the output, bump --days or merge with a known list.
 """
 import json
 import sys
@@ -95,7 +82,7 @@ def attached_policy_actions(client_iam, role_name: str) -> set[str]:
     """Flat set of `<service>:<Action>` from every policy attached to the role.
 
     Only counts simple string actions, not wildcard or NotAction. The point is
-    to highlight what's allowed beyond what we observed — wildcards are flagged
+    to highlight what's allowed beyond what we observed - wildcards are flagged
     separately in main().
     """
     seen: set[str] = set()
@@ -176,7 +163,7 @@ def main(argv = None) -> int:
             for a in unused:
                 LOG.warning("  - %s", a)
         if wildcards:
-            LOG.warning("%d wildcard action(s) — review manually:", len(wildcards))
+            LOG.warning("%d wildcard action(s) - review manually:", len(wildcards))
             for a in wildcards:
                 LOG.warning("  - %s", a)
 

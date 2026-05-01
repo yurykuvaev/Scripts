@@ -1,6 +1,6 @@
 """Unit tests for the pure-Python helpers in unused_security_groups.
 
-We don't mock botocore here — that would test the mock library more than
+We don't mock botocore here - that would test the mock library more than
 our code. Instead we test the parts that have real logic: cross-reference
 extraction and topo sort for delete order.
 """
@@ -71,7 +71,7 @@ class TestTopoSortForDelete:
         assert order == ["sg-1", "sg-2", "sg-3"]
 
     def test_dep_outside_unused_set_is_ignored(self) -> None:
-        # sg-1 references sg-2 but sg-2 is not in the unused list — that's fine,
+        # sg-1 references sg-2 but sg-2 is not in the unused list - that's fine,
         # the topo sort only walks within the unused set.
         refs = {"sg-1": {"sg-2"}}
         order = topo_sort_for_delete(["sg-1"], refs)

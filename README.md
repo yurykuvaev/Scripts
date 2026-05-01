@@ -46,7 +46,7 @@ the same `--region`, `--dry-run`, `--verbose` flags work everywhere:
 # Inventory
 python security_group_id_exporter.py --region us-east-1 -o sg_ids.txt
 
-# Tagging — preview first
+# Tagging - preview first
 python add_tags_to_security_group.py \
     --region us-east-1 \
     --input sg_ids.txt \
@@ -59,7 +59,7 @@ python add_tags_to_security_group.py \
     --input sg_ids.txt \
     --tag Product=ingest --tag Service=api --tag SupportGroup=platform
 
-# Compliance check — exits non-zero if any role is missing the policy
+# Compliance check - exits non-zero if any role is missing the policy
 python iam_role_policy_auditor/ecs_role_policy_compliance_check.py \
     --role-prefix ecs-task- \
     --policy-arn arn:aws:iam::123456789012:policy/EcsRoleTaggingPolicy
@@ -80,19 +80,19 @@ unless the script is invoked with `--delete` (and where applicable
 
 | Script | Read | Write (only when --delete / not --dry-run) |
 |---|---|---|
-| `security_group_id_exporter.py` | `ec2:DescribeSecurityGroups` | — |
+| `security_group_id_exporter.py` | `ec2:DescribeSecurityGroups` | - |
 | `add_tags_to_security_group.py` | `ec2:DescribeSecurityGroups`, `ec2:DescribeTags` | `ec2:CreateTags` |
 | `security_group_environment_tag_applier.py` | `ec2:DescribeTags` | `ec2:CreateTags` |
-| `tagged_security_group_counter.py` | `ec2:DescribeSecurityGroups` | — |
+| `tagged_security_group_counter.py` | `ec2:DescribeSecurityGroups` | - |
 | `tag_log_groups.py` | `logs:DescribeLogGroups`, `logs:ListTagsLogGroup` | `logs:TagLogGroup` |
 | `add_role_to_ecr.py` | `ecr:DescribeRepositories`, `ecr:GetRepositoryPolicy` | `ecr:SetRepositoryPolicy` |
 | `unused_security_groups.py` | `ec2:DescribeSecurityGroups`, `ec2:DescribeNetworkInterfaces`, `ec2:DescribeLaunchTemplates`, `ec2:DescribeLaunchTemplateVersions` | `ec2:DeleteSecurityGroup` |
 | `ami_cleanup.py` | `ec2:DescribeImages`, `ec2:DescribeInstances`, `ec2:DescribeLaunchTemplates`, `ec2:DescribeLaunchTemplateVersions`, `autoscaling:DescribeAutoScalingGroups`, `autoscaling:DescribeLaunchConfigurations` | `ec2:DeregisterImage`, `ec2:DeleteSnapshot` |
 | `ecr_image_aging.py` | `ecr:DescribeRepositories`, `ecr:DescribeImages` | `ecr:BatchDeleteImage` |
-| `iam_policy_minimizer.py` | `cloudtrail:LookupEvents`, `iam:ListAttachedRolePolicies`, `iam:ListRolePolicies`, `iam:GetPolicy`, `iam:GetPolicyVersion`, `iam:GetRolePolicy` | — (read-only; emits a JSON suggestion) |
-| `iam_role_policy_auditor/...` | `iam:ListRoles`, `iam:ListAttachedRolePolicies` | — |
+| `iam_policy_minimizer.py` | `cloudtrail:LookupEvents`, `iam:ListAttachedRolePolicies`, `iam:ListRolePolicies`, `iam:GetPolicy`, `iam:GetPolicyVersion`, `iam:GetRolePolicy` | - (read-only; emits a JSON suggestion) |
+| `iam_role_policy_auditor/...` | `iam:ListRoles`, `iam:ListAttachedRolePolicies` | - |
 | `logs_to_firehose/...` | `sts:GetCallerIdentity` | `logs:PutSubscriptionFilter` |
-| `redis_instance_check/...` | `ecs:ListServices`, `ecs:DescribeServices`, `ecs:DescribeTaskDefinition` | — |
+| `redis_instance_check/...` | `ecs:ListServices`, `ecs:DescribeServices`, `ecs:DescribeTaskDefinition` | - |
 | `subscription_filters/...` | `sts:GetCallerIdentity`, `logs:DescribeLogGroups` | `logs:PutSubscriptionFilter` |
 
 The IAM role passed via `--role-arn` to scripts that wire up CloudWatch
@@ -114,4 +114,4 @@ Python 3.10+.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

@@ -12,7 +12,6 @@ from pathlib import Path
 
 import boto3
 
-# IAM is global — region doesn't matter; just include in arg parser for consistency.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from _common import LOG, common_arg_parser, configure_logging
 
@@ -72,7 +71,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         sys.stdout.write(text)
 
-    # Non-zero exit if anything is non-compliant — useful in CI.
+    # Non-zero exit if anything is non-compliant - useful in CI.
     return 0 if not missing else 1
 
 

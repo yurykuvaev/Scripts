@@ -1,6 +1,6 @@
 """Tests for the pure-Python helpers in iam_policy_minimizer.
 
-Skips anything that needs CloudTrail or IAM live — focuses on parsing
+Skips anything that needs CloudTrail or IAM live - focuses on parsing
 helpers (statement normalisation, action aggregation, policy rendering).
 """
 from __future__ import annotations

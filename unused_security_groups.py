@@ -1,17 +1,8 @@
-"""Find — and optionally delete — security groups that nothing uses.
+"""Find and optionally delete security groups that nothing uses.
 
-A security group is "unused" if no ENI references it AND no other SG's
-ingress/egress rules reference it AND no Launch Template version mentions
-it. This is the conservative definition: an unused SG by this script will
-not break anything when removed.
-
-Two modes:
-  default  — report only (read-only)
-  --delete — actually call ec2:DeleteSecurityGroup. Honours --dry-run.
-
-Inter-SG references are resolved with a topological order: orphan SGs
-that reference each other are deleted in the right sequence so we don't
-get blocked by DependencyViolation.
+Cross-checks ENIs, Launch Template versions, and inter-SG rule references
+to build the in-use set; report-only by default, `--delete` removes them
+in topological order to avoid DependencyViolation.
 """
 from __future__ import annotations
 
@@ -87,7 +78,7 @@ def topo_sort_for_delete(unused: list[str], refs: dict[str, set[str]]) -> list[s
         for dep in refs.get(node, ()):
             if dep in unused_set:
                 visit(dep)
-        # Post-order: leaf-most first (dep) — but for SG delete we want
+        # Post-order: leaf-most first (dep) - but for SG delete we want
         # the *referrer* deleted first. Flip by appending after visiting deps.
         out.append(node)
 

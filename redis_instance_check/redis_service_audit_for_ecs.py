@@ -3,7 +3,7 @@
 Walks every service in the given cluster, fetches its current task
 definition, and prints any container whose REDIS_URL env var contains
 one of the substrings in --redis-host. Useful when migrating a Redis
-fleet — gives a list of services that need a config update.
+fleet - gives a list of services that need a config update.
 """
 from __future__ import annotations
 

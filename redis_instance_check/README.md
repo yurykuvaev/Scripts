@@ -1,7 +1,7 @@
 # redis_instance_check
 
 Find ECS services whose task definitions still point at a list of Redis
-hostnames. Useful when migrating Redis fleet — gives a list of services
+hostnames. Useful when migrating Redis fleet - gives a list of services
 that need their `REDIS_URL` env var rotated to the new endpoint.
 
 ## How it works
@@ -9,7 +9,7 @@ that need their `REDIS_URL` env var rotated to the new endpoint.
 `redis_service_audit_for_ecs.py` walks every service in the given ECS
 cluster, fetches its task definition, and checks each container's
 `environment` for a `REDIS_URL` whose value contains any of the
-substrings passed via `--redis-host`. Read-only — no mutations.
+substrings passed via `--redis-host`. Read-only - no mutations.
 
 ## Usage
 

@@ -1,8 +1,8 @@
 """Apply a fixed set of tags to security groups.
 
 Two modes:
-- `--input <file>`        — read SG IDs (one per line) from file
-- `--all-in-region`       — fetch every SG in the region, no file needed
+- `--input <file>`        - read SG IDs (one per line) from file
+- `--all-in-region`       - fetch every SG in the region, no file needed
 """
 from __future__ import annotations
 
@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
         LOG.info("loaded %d SG(s) from %s", len(sg_ids), args.input)
 
     if not sg_ids:
-        LOG.warning("no SG IDs to process — nothing to do")
+        LOG.warning("no SG IDs to process - nothing to do")
         return 0
 
     total_added = 0

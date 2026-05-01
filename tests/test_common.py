@@ -1,6 +1,6 @@
 """Tests for the shared utilities in _common.py.
 
-Lightweight — no AWS calls, no botocore mocking. Just argument parsing
+Lightweight - no AWS calls, no botocore mocking. Just argument parsing
 and parse_kv_pairs validation logic, the parts that have non-trivial
 behavior.
 """

@@ -1,6 +1,6 @@
 """Shared utilities used by all scripts in this repo.
 
-Keeps the per-script files focused on the business logic — argparse,
+Keeps the per-script files focused on the business logic - argparse,
 logging setup, and the boto3 client factory live here so we don't repeat
 them.
 """

@@ -1,6 +1,6 @@
 """Add a role ARN to the `ECRWrite` statement of every ECR repo policy.
 
-Idempotent — if the role is already in the principal list, the repo is
+Idempotent - if the role is already in the principal list, the repo is
 skipped. If the policy doesn't have an `ECRWrite` statement, the repo is
 left untouched (we don't invent a policy from scratch).
 """

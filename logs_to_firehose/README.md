@@ -1,11 +1,11 @@
 # logs_to_firehose
 
 Subscribe a single CloudWatch Log Group to a Kinesis Firehose delivery
-stream so its events get forwarded onward (Splunk, S3, Elasticsearch — wherever
+stream so its events get forwarded onward (Splunk, S3, Elasticsearch - wherever
 the Firehose ends up).
 
 `cloudwatch_to_kinesis_firehose.py` resolves the AWS account ID via STS, so
-the destination ARN is built dynamically — no hardcoded account number.
+the destination ARN is built dynamically - no hardcoded account number.
 
 ## Usage
 

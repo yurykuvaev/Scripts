@@ -24,7 +24,7 @@ python cloudwatch_to_firehose_filter_setter.py \
 ```
 
 The script tallies `attached / skipped / failed` at the end and exits
-non-zero if any `put_subscription_filter` call raised — friendly for CI
+non-zero if any `put_subscription_filter` call raised - friendly for CI
 or a make-style pipeline.
 
 For a single-group attach, see [`../logs_to_firehose/`](../logs_to_firehose/).

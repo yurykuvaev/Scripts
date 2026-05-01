@@ -113,7 +113,7 @@ def main(argv: list[str] | None = None) -> int:
         "--keep-tag-pattern",
         action="append",
         default=[],
-        help="Glob (fnmatch) — tags matching are always kept. Repeatable.",
+        help="Glob (fnmatch) - tags matching are always kept. Repeatable.",
     )
     parser.add_argument(
         "--keep-last-n",

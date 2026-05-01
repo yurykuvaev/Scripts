@@ -1,7 +1,7 @@
 """Count security groups that already carry every tag key in a given list.
 
 Useful as a compliance check: "how many of our SGs have Product / Service /
-SupportGroup set?" — run as a baseline before a tagging push and again
+SupportGroup set?" - run as a baseline before a tagging push and again
 after to confirm coverage.
 """
 from __future__ import annotations
